@@ -1,8 +1,11 @@
 package org.example;
-
+import java.util.Collections;
+import java.util.Stack;
+import java.util.ArrayList;;
 
 public class Deck {
-    private Card[] cards; //덱의 카드 배열
+    //private Card[] cards; //덱의 카드 배열
+    private Stack<Card> cards;
     private int stacks; //덱의 카드 수
     private int sets; //덱의 세트 수
 
@@ -14,27 +17,27 @@ public class Deck {
             this.sets = 2; //덱의 세트 수 default값 설정
             this.stacks = 52 * this.sets;
         }
-        this.cards = new Card[stacks]; //카드 배열 생성
+        //this.cards = new Card[stacks]; //카드 배열 생성
+        this.cards = new Stack<>();
 
         String[] suits = {"♠", "♣", "♥", "♦"}; //카드 모양 배열
         String[] ranks = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"}; //카드 숫자 배열
 
-        int index = 0; //카드 배열 인덱스
+        //int index = 0; //카드 배열 인덱스
         for (int i = 0; i < sets; i++) { 
             for (String suit : suits) { 
                 for (String rank : ranks) { 
-                    cards[index++] = new Card(suit, rank); //카드 생성
+                    //cards[index++] = new Card(suit, rank); //카드 생성
+                    cards.push(new Card(suit, rank));
                 }
             }
         }
     }
 
     public void suffle() { //덱 섞기
-        for (int i = 0; i < stacks; i++) {
-            int r = (int) (Math.random() * stacks); 
-            Card temp = cards[i];
-            cards[i] = cards[r];
-            cards[r] = temp;
-        }
+        ArrayList<Card> temp = new ArrayList<>(cards);
+        Collections.shuffle(temp);
+        cards.clear();
+        cards.addAll(temp);
     }
 }
