@@ -3,10 +3,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Stack;
 
-public class Deck {
-    private Stack<Card> cards;
-    private int stacks; //덱의 카드 수
-    private int sets; //덱의 세트 수
+public final class Deck {
+    private final Stack<Card> cards;
+    private final int stacks; //덱의 카드 수
+    private final int sets; //덱의 세트 수
 
     public Deck(int sets) { //덱 생성자
         if (sets >= 1 && sets <= 4) { //입력한 세트 수가 1~4 사이일 때
@@ -28,12 +28,17 @@ public class Deck {
                 }
             }
         }
+        suffleDeck();
     }
 
-    public void suffle() { //덱 섞기
+    public void suffleDeck() { //덱 섞기
         ArrayList<Card> temp = new ArrayList<>(cards);
         Collections.shuffle(temp);
         cards.clear();
         cards.addAll(temp);
+    }
+
+    public synchronized Card drawCard() { //카드 뽑기
+        return cards.pop();
     }
 }
