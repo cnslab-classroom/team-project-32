@@ -13,6 +13,7 @@ public class Player implements Runnable{
     private boolean isBlackJack; //BlackJack인지 확인
     private boolean isBust; //Bust인지 확인
     private boolean isStand; //카드 그만 받을지 확인
+    private boolean isWin; //승리 확인
 
     public Player(String name, boolean isHuman) { //Player 생성자
         this.name = name;
@@ -23,6 +24,7 @@ public class Player implements Runnable{
         this.isBlackJack = false;
         this.isBust = false;
         this.isStand = false;
+        this.isWin = false;
     }
 
     public String getName() { //Player 이름 getter
@@ -72,23 +74,35 @@ public class Player implements Runnable{
         isStand = stand;
     }
 
+    public boolean isWin() { //승리 상태 getter
+        return isWin;
+    }
+    public void setWin(boolean win) { //승리 상태 setter
+        isWin = win;
+    }
+
 
     public void addCard(Card card) {//player hands에 카드 추가
+        int aceCount = 0;
         hands.add(card);
+        
+        //A가 있을 때 aceCount 증가
+        if (card.getRank().equals("A")) {aceCount++;}
         cardScore += card.getValue();
 
         if (cardScore > 21) {
             for (Card hand : hands) {
-                if (hand.getRank().equals("A")) { //총 점수가 21을 넘고, A가 있을 때 A를 1로 계산
-                    cardScore -= 10; 
+                if (hand.getRank().equals("A") && aceCount > 0) { //총 점수가 21을 넘고, A가 있을 때 A를 1로 계산
+                    cardScore -= 10;
+                    aceCount--;
                 }
             }
             if (cardScore > 21) { //A를 1로 계산했을 때에도 21을 넘으면 Bust
-                isBust = true;
+                setBust(true);
             }
         }
         if (hands.size() == 2 && cardScore == 21) { //카드가 2장이고 21일 때 BlackJack
-            isBlackJack = true;
+            setBlackJack(true);
         }
     }
 

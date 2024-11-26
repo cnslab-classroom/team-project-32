@@ -7,7 +7,7 @@ public final class Deck {
     private final Stack<Card> cards;
     private int stacks; //덱의 카드 수
     private final int sets; //덱의 세트 수
-    boolean flag = true; //플래그 변수 (0: player, 1~3: 각각의 AI) (0,1,2,3 순서로)
+    boolean flag = true; //플래그 변수
 
     public Deck(int sets) { //덱 생성자
         if (sets >= 1 && sets <= 4) { //입력한 세트 수가 1~4 사이일 때

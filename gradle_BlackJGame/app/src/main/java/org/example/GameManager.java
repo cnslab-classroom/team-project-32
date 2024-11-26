@@ -4,7 +4,9 @@ import java.util.Scanner;
 
 public class GameManager {
     public void startGame() {
-        Player winner = null; //승자 저장할 변수
+        int[] winners = new int[4]; //승자가 여러명인 경우도 고려
+        int index = 0; //승자 배열 인덱스
+
         try (Scanner scanner = new Scanner(System.in)) {
             System.out.println("Welcome to BlackJack Game!");
 
@@ -29,7 +31,7 @@ public class GameManager {
             Player[] players = new Player[playerNum + 1];
             players[0] = new Player(name, true);
             for (int i = 1; i <= playerNum; i++) {
-                players[i] = new Player("AI " + i, false);
+                players[i] = new Player("COM" + i, false);
             }
 
             Dealer dealer = new Dealer();
@@ -37,44 +39,61 @@ public class GameManager {
             dealer.dealInitialCards(players, deck);
 
             for (Player player : players) {
-                System.out.println(player.getName() + "'s cards: ");
-                for (Card card : player.getHands()) {
-                    System.out.println(card.printCard());
-                }
+                player.displayHands();
                 System.out.println();
             }
 
             int turn = 0;
             while (true) {
-                //플레이어들이 블랙젝이 있는지 확인, 있으면 승자로 설정
+                //플레이어에게 블랙잭이 있는지 확인, 있으면 바로 승자로 설정, 여러명이 블랙잭 나온 경우도 고려, 게임 종료
                 for (Player player : players) {
                     if (player.isBlackJack()) {
-                        winner = player;
-                        break;
+                        System.out.println(player.getName() + " BlackJack!");
+                        player.setWin(true);
+                        System.out.println(player.getName() + " wins!");
+                        System.out.println();
+                        return;
                     }
                 }
 
+
                 Player currentPlayer = players[turn % (playerNum + 1)];
-                if (currentPlayer.isHuman() && !currentPlayer.isStand() && !currentPlayer.isBust()) { //사람일 때+카드 더 받을 수 있을 때
-                    System.out.println("Your turn! " + "Score : " + currentPlayer.getCardScore());
+                if (currentPlayer.isHuman()) { //사람일 때
 
-                    System.out.println("Do you want to hit or stand? (h/s): ");
-                    String action = scanner.nextLine();
-                    if (action.equals("h")) {
-                        currentPlayer.addCard(deck.drawCard());
-                    } else if (action.equals("s")) {
-                        currentPlayer.setStand(true);
-                    } else {
+                    if (!currentPlayer.isStand() && !currentPlayer.isBust()) {//카드 더 받을 수 있을 때
+                        System.out.println(currentPlayer.getName() + "'s turn! " + "Score : " + currentPlayer.getCardScore());
+
+                        System.out.println("Do you want to hit or stand? (h/s): ");
+                        String action = scanner.nextLine();
+                        if (action.equals("h")) {
+                            currentPlayer.addCard(deck.drawCard());
+                            turn++;
+                        } else if (action.equals("s")) {
+                            currentPlayer.setStand(true);
+                            System.out.println(currentPlayer.getName() + " stands!");
+                            turn++;
+                        } else {
                         System.out.println("Invalid input. Please enter h or s.");
-                    }
-                    
-                } else { //AI일 때
-                    System.out.println(currentPlayer.getName() + "'s turn!" + "Score : " + currentPlayer.getCardScore());
+                        }
 
-                    if (currentPlayer.getCardScore() < 17 && !currentPlayer.isBust() && !currentPlayer.isStand()) {
+                    } else { //카드 더 받을 수 없을 때
+                        if (currentPlayer.isBust()) { //bust일 때
+                            System.out.println(currentPlayer.getName() + " Bust!");
+                            turn++;
+                        } else if (currentPlayer.isStand()) { //stand일 때
+                            System.out.println(currentPlayer.getName() + " stands!");
+                            turn++;
+                        }
+                    }
+
+                } else { //AI일 때
+                    System.out.println(currentPlayer.getName() + "'s turn!" + " Score : " + currentPlayer.getCardScore());
+
+                    if (currentPlayer.getCardScore() < 17 && !currentPlayer.isBust() && !currentPlayer.isStand()) { //카드 더 받을 수 있을 때
                         currentPlayer.addCard(deck.drawCard());
+                        turn++;
                     } else {
-                        if (!currentPlayer.isBust()) {
+                        if (currentPlayer.isBust()) { //bust일 때
                             System.out.println(currentPlayer.getName() + " Bust!");
                             turn++;
                         } else {
@@ -83,19 +102,14 @@ public class GameManager {
                             turn++;
                         }
                     }
-
-                System.out.println(currentPlayer.getName() + "'s cards: ");
-                for (Card card : currentPlayer.getHands()) {
-                    System.out.println(card.printCard());
                 }
+                currentPlayer.displayHands();
                 System.out.println();
 
-                if (currentPlayer.getCardScore() > 21) {
-                    currentPlayer.setBust(true);
+                if (currentPlayer.isBust()) {
                     System.out.println(currentPlayer.getName() + " is bust!");
                     System.out.println();
                 }
-                turn++;
                 
                 boolean allStandOrBust = true; //모든 플레이어가 stand 또는 bust인지 확인
                 for (Player player : players) {
@@ -103,29 +117,50 @@ public class GameManager {
                         allStandOrBust = false;
                     }
                 }
-                if (allStandOrBust) {
-                    break;
-                }
+                if (allStandOrBust) { break; }
             }
-
             //점수 비교후 승자 출력
-            
             int maxScore = 0;
+
             for (Player player : players) {
-                if (player.getCardScore() <= 21 && player.getCardScore() > maxScore) {
-                    maxScore = player.getCardScore();
-                    winner = player;
+                int score = player.getCardScore();
+            
+                if (score <= 21) {
+                    if (score > maxScore) {
+                        maxScore = score;
+                        index = 0;
+                        winners[index] = score;
+                        index++;
+                    } else if (score == maxScore) {
+                        winners[index] = score;
+                        index++;
+                    }
+                } else {
+                    winners[index] = 0;
+                    index++;
+                }
+            }   
+
+            for (Player player : players) {
+                for (int i = 0; i < players.length; i++) {
+                    if (winners[i] == player.getCardScore()) {
+                        player.setWin(true);
+                    }
                 }
             }
 
-                if (winner != null) {
-                    System.out.println("The winner is " + winner.getName() + " score : " + winner.getCardScore() + "!");
-                    break;
-                } else {
-                    System.out.println("No winner!");
-                    break;
-                }
+            if (maxScore > 0) {
+                for (Player player : players) {
+                    if (player.isWin()) {
+                        System.out.println(player.getName() + " wins!" + " Score: " + player.getCardScore());
+                        System.out.println();
+                    }  
+                }   
+            } else {
+                System.out.println("No winner!");
             }
         }
     }
 }
+
+
