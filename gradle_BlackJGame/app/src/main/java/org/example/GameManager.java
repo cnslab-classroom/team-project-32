@@ -1,166 +1,202 @@
 package org.example;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class GameManager {
+    private static final int MIN_PLAYERS = 1;
+    private static final int MAX_PLAYERS = 3;
+    private static final int MIN_DECKS = 1;
+    private static final int MAX_DECKS = 4;
+    private static final int AI_STAND_THRESHOLD = 17;
+    private static final int BLACKJACK_SCORE = 21;
+
     public void startGame() {
-        int[] winners = new int[4]; //승자가 여러명인 경우도 고려
-        int index = 0; //승자 배열 인덱스
-
         try (Scanner scanner = new Scanner(System.in)) {
-            System.out.println("Welcome to BlackJack Game!");
+            //초기 게임 설정
+            String playerName = promptPlayerName(scanner);
+            int playerCount = promptPlayerCount(scanner);
+            int deckCount = promptDeckCount(scanner);
 
-            System.out.println("Enter your name: ");
-            String name = scanner.nextLine();
-
-            System.out.println("Enter the number of AI players (1~3): ");
-            int playerNum = scanner.nextInt();
-            scanner.nextLine(); 
-            if (playerNum < 1 || playerNum > 3) {
-                playerNum = 1;
-            } 
-
-            System.out.println("How many decks do you want to use? (1~4): ");
-            int deckNum = scanner.nextInt();
-            scanner.nextLine(); 
-
-            if (deckNum < 1 || deckNum > 4) {
-                deckNum = 1;
-            }
-
-            Player[] players = new Player[playerNum + 1];
-            players[0] = new Player(name, true);
-            for (int i = 1; i <= playerNum; i++) {
-                players[i] = new Player("COM" + i, false);
-            }
-
+            //플래이어, 딜러, 덱 생성
+            List<Player> players = createPlayers(playerName, playerCount);
             Dealer dealer = new Dealer();
-            Deck deck = new Deck(deckNum);
-            dealer.dealInitialCards(players, deck);
+            Deck deck = new Deck(deckCount);
 
-            for (Player player : players) {
-                player.displayHands();
-                System.out.println();
-            }
+            //처음 카드 나눠주기 및 초기 카드 출력
+            dealer.dealInitialCards(players.toArray(new Player[0]), deck);
+            displayInitialHands(players);
 
-            int turn = 0;
-            while (true) {
-                //플레이어에게 블랙잭이 있는지 확인, 있으면 바로 승자로 설정, 여러명이 블랙잭 나온 경우도 고려, 게임 종료
-                for (Player player : players) {
-                    if (player.isBlackJack()) {
-                        System.out.println(player.getName() + " BlackJack!");
-                        player.setWin(true);
-                        System.out.println(player.getName() + " wins!");
-                        System.out.println();
-                        return;
-                    }
-                }
+            //게임 진행
+            playGameRound(scanner, players, deck);
 
+            //승자 결정
+            determineWinners(players);
+        }
+    }
 
-                Player currentPlayer = players[turn % (playerNum + 1)];
-                if (currentPlayer.isHuman()) { //사람일 때
+    private String promptPlayerName(Scanner scanner) { //이름 입력받기
+        System.out.println("Welcome to BlackJack Game!");
+        System.out.print("Enter your name: ");
+        return scanner.nextLine();
+    }
 
-                    if (!currentPlayer.isStand() && !currentPlayer.isBust()) {//카드 더 받을 수 있을 때
-                        System.out.println(currentPlayer.getName() + "'s turn! " + "Score : " + currentPlayer.getCardScore());
+    private int promptPlayerCount(Scanner scanner) { //AI 플레이어 수 입력받기
+        System.out.print("Enter the number of AI players (1-3): ");
+        int playerNum = scanner.nextInt();
+        scanner.nextLine(); 
+        return Math.min(Math.max(playerNum, MIN_PLAYERS), MAX_PLAYERS);
+    }
 
-                        System.out.println("Do you want to hit or stand? (h/s): ");
-                        String action = scanner.nextLine();
-                        if (action.equals("h")) {
-                            currentPlayer.addCard(deck.drawCard());
-                            turn++;
-                        } else if (action.equals("s")) {
-                            currentPlayer.setStand(true);
-                            System.out.println(currentPlayer.getName() + " stands!");
-                            turn++;
-                        } else {
-                        System.out.println("Invalid input. Please enter h or s.");
-                        }
+    private int promptDeckCount(Scanner scanner) { //덱 수 입력받기
+        System.out.print("How many decks do you want to use? (1-4): ");
+        int deckNum = scanner.nextInt();
+        scanner.nextLine(); 
+        return Math.min(Math.max(deckNum, MIN_DECKS), MAX_DECKS);
+    }
 
-                    } else { //카드 더 받을 수 없을 때
-                        if (currentPlayer.isBust()) { //bust일 때
-                            System.out.println(currentPlayer.getName() + " Bust!");
-                            turn++;
-                        } else if (currentPlayer.isStand()) { //stand일 때
-                            System.out.println(currentPlayer.getName() + " stands!");
-                            turn++;
-                        }
-                    }
+    private List<Player> createPlayers(String playerName, int playerCount) { //플레이어 생성
+        List<Player> players = new ArrayList<>();
+        players.add(new Player(playerName, true));
+        
+        for (int i = 1; i <= playerCount; i++) {
+            players.add(new Player("COM" + i, false));
+        }
+        return players;
+    }
 
-                } else { //AI일 때
-                    System.out.println(currentPlayer.getName() + "'s turn!" + " Score : " + currentPlayer.getCardScore());
+    private void displayInitialHands(List<Player> players) { //처음 카드 출력
+        for (Player player : players) {
+            player.displayHands();
+            System.out.println();
+        }
+    }
 
-                    if (currentPlayer.getCardScore() < 17 && !currentPlayer.isBust() && !currentPlayer.isStand()) { //카드 더 받을 수 있을 때
-                        currentPlayer.addCard(deck.drawCard());
-                        turn++;
-                    } else {
-                        if (currentPlayer.isBust()) { //bust일 때
-                            System.out.println(currentPlayer.getName() + " Bust!");
-                            turn++;
-                        } else {
-                            currentPlayer.setStand(true);
-                            System.out.println(currentPlayer.getName() + " stands!");
-                            turn++;
-                        }
-                    }
-                }
-                currentPlayer.displayHands();
-                System.out.println();
-
-                if (currentPlayer.isBust()) {
-                    System.out.println(currentPlayer.getName() + " is bust!");
-                    System.out.println();
-                }
-                
-                boolean allStandOrBust = true; //모든 플레이어가 stand 또는 bust인지 확인
-                for (Player player : players) {
-                    if (!player.isStand() && !player.isBust() && player.getCardScore() < 21) {
-                        allStandOrBust = false;
-                    }
-                }
-                if (allStandOrBust) { break; }
-            }
-            //점수 비교후 승자 출력
-            int maxScore = 0;
-
-            for (Player player : players) {
-                int score = player.getCardScore();
+    private void playGameRound(Scanner scanner, List<Player> players, Deck deck) { //게임 진행
+        int turn = 0;
+        while (!isGameRoundComplete(players)) {
+            Player currentPlayer = players.get(turn % players.size());
             
-                if (score <= 21) {
-                    if (score > maxScore) {
-                        maxScore = score;
-                        index = 0;
-                        winners[index] = score;
-                        index++;
-                    } else if (score == maxScore) {
-                        winners[index] = score;
-                        index++;
-                    }
-                } else {
-                    winners[index] = 0;
-                    index++;
-                }
-            }   
-
-            for (Player player : players) {
-                for (int i = 0; i < players.length; i++) {
-                    if (winners[i] == player.getCardScore()) {
-                        player.setWin(true);
-                    }
-                }
+            //블랙잭 나왔는지 체크
+            if (checkForBlackJack(currentPlayer)) {
+                return;
             }
 
-            if (maxScore > 0) {
-                for (Player player : players) {
-                    if (player.isWin()) {
-                        System.out.println(player.getName() + " wins!" + " Score: " + player.getCardScore());
-                        System.out.println();
-                    }  
-                }   
-            } else {
-                System.out.println("No winner!");
+            //플레이어 턴 진행
+            handlePlayerTurn(scanner, currentPlayer, deck, turn);
+            
+            turn++;
+        }
+    }
+
+    private boolean checkForBlackJack(Player player) { //블랙잭 체크 + 승자 확인하는 메서드
+        if (player.isBlackJack()) {
+            System.out.println(player.getName() + " BlackJack!");
+            player.setWin(true);
+            System.out.println(player.getName() + " wins!");
+            System.out.println();
+            return true;
+        }
+        return false;
+    }
+
+    private void handlePlayerTurn(Scanner scanner, Player player, Deck deck, int turn) { //플레이어 턴 진행
+        if (player.isHuman()) {
+            handleHumanPlayerTurn(scanner, player, deck);
+        } else {
+            handleAIPlayerTurn(player, deck);
+        }
+        
+        player.displayHands();
+        System.out.println();
+
+        if (player.isBust()) { //버스트 됐을 때
+            System.out.println(player.getName() + " is bust!");
+            System.out.println();
+        }
+    }
+
+    private void handleHumanPlayerTurn(Scanner scanner, Player player, Deck deck) { //사람 플레이어 턴 진행
+        if (!player.isStand() && !player.isBust()) {
+            System.out.println(player.getName() + "'s turn! Score: " + player.getCardScore());
+            System.out.print("Do you want to hit or stand? (h/s): ");
+            String action = scanner.nextLine();
+
+            switch (action.toLowerCase()) {
+                case "h": //hit (카드 뽑기)
+                    player.addCard(deck.drawCard());
+                    break;
+                case "s": //stand (턴 종료)
+                    player.setStand(true);
+                    System.out.println(player.getName() + " stands!");
+                    break;
+                default: //잘못된 입력
+                    System.out.println("Invalid input. Please enter h or s.");
             }
+        } else if (player.isBust()) {
+            System.out.println(player.getName() + " Bust!");
+        } else if (player.isStand()) {
+            System.out.println(player.getName() + " stands!");
+        }
+    }
+
+    private void handleAIPlayerTurn(Player player, Deck deck) { //AI 플레이어 턴 진행
+        System.out.println(player.getName() + "'s turn! Score: " + player.getCardScore());
+
+        if (player.getCardScore() < AI_STAND_THRESHOLD && !player.isBust() && !player.isStand()) {
+            player.addCard(deck.drawCard());
+        } else if (player.isBust()) {
+            System.out.println(player.getName() + " Bust!");
+        } else {
+            player.setStand(true);
+            System.out.println(player.getName() + " stands!");
+        }
+    }
+
+    private boolean isGameRoundComplete(List<Player> players) { //게임 라운드 종료 체크 (모든 플레이어가 할 수 있는게 없을 때)
+        for (Player player : players) {
+            if (!player.isStand() && !player.isBust() && player.getCardScore() < BLACKJACK_SCORE) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void determineWinners(List<Player> players) { //승자 결정
+        int maxScore = calculateMaxValidScore(players);
+
+        if (maxScore > 0) {
+            announceWinners(players, maxScore);
+        } else {
+            System.out.println("No winner!");
+        }
+    }
+
+    private int calculateMaxValidScore(List<Player> players) { //가장 높은 점수 계산
+        int maxScore = 0;
+        for (Player player : players) {
+            int playerScore = player.getCardScore();
+            if (playerScore <= BLACKJACK_SCORE && playerScore > maxScore) {
+                maxScore = playerScore;
+            }
+        }
+        return maxScore;
+    }
+
+    private void announceWinners(List<Player> players, int maxScore) { //승자 출력하는 메서드
+        boolean hasWinner = false;
+        for (Player player : players) {
+            if (player.getCardScore() == maxScore) {
+                player.setWin(true);
+                System.out.println(player.getName() + " wins! Score: " + player.getCardScore());
+                System.out.println();
+                hasWinner = true;
+            }
+        }
+        
+        if (!hasWinner) {
+            System.out.println("No winner!");
         }
     }
 }
-
-
