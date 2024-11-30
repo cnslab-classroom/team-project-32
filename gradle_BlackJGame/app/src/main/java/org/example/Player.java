@@ -76,14 +76,6 @@ public class Player implements Runnable {
         isStand = stand;
     }
 
-    // public boolean isWin() { //승리 상태 getter
-    //     return isWin;
-    // }
-    // public void setWin(boolean win) { //승리 상태 setter
-    //     isWin = win;
-    // }
-
-
     synchronized public void addCard(Card card) {//player hands에 카드 추가
         int aceCount = 0;
         hands.add(card);
