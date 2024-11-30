@@ -2,11 +2,11 @@ package org.example;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
-public class Player implements Runnable{
-    private final String name; //Player 이름
+public class Player implements Runnable {
+   // private final String name; //Player 이름
     private int score; //Player 점수
+    private String name;
     private int cardScore; //Player 카드 점수의 총 합
     private final List<Card> hands; //Player 카드 리스트
     private final boolean isHuman; //사람인지 컴퓨터인지 check
@@ -14,12 +14,14 @@ public class Player implements Runnable{
     private boolean isBust; //Bust인지 확인
     private boolean isStand; //카드 그만 받을지 확인
     private boolean isWin; //승리 확인
-
+    private Object lock = new Object();
+    
     public Player(String name, boolean isHuman) { //Player 생성자
-        this.name = name;
+      //  this.name = name;
         this.score = 0;
         this.cardScore = 0;
         this.hands = new ArrayList<>();
+        this.name = name;
         this.isHuman = isHuman;
         this.isBlackJack = false;
         this.isBust = false;
@@ -74,15 +76,15 @@ public class Player implements Runnable{
         isStand = stand;
     }
 
-    public boolean isWin() { //승리 상태 getter
-        return isWin;
-    }
-    public void setWin(boolean win) { //승리 상태 setter
-        isWin = win;
-    }
+    // public boolean isWin() { //승리 상태 getter
+    //     return isWin;
+    // }
+    // public void setWin(boolean win) { //승리 상태 setter
+    //     isWin = win;
+    // }
 
 
-    public void addCard(Card card) {//player hands에 카드 추가
+    synchronized public void addCard(Card card) {//player hands에 카드 추가
         int aceCount = 0;
         hands.add(card);
         
@@ -104,44 +106,35 @@ public class Player implements Runnable{
         if (hands.size() == 2 && cardScore == 21) { //카드가 2장이고 21일 때 BlackJack
             setBlackJack(true);
         }
-    }
-
-    public void displayHands() { //Player 카드 리스트 출력
-        System.out.println(name + "'s hands: ");
-        for (Card hand : hands) {
-            System.out.println(hand.printCard());
-        }
-        System.out.println("Total score: " + cardScore);
+        Frame.appendLog(name + " drew: " + card.printCard() + " (Total: " + cardScore + ")");
     }
 
     @Override
     public void run() {
-        if (!isHuman) {
-            while (cardScore <= 17 && isBust == false) { //카드 점수가 17 이하일 때 카드 추가
-                //addCard(deck.drawCard());
-            }
-        } else { //사람일 때
-            while (true) {
-                System.out.println("Choose hit or stand (Hit : 1 / Stand : 2)");
-                try (Scanner scanner = new Scanner(System.in)) {
-                    int answer = scanner.nextInt();
-
-                    if (answer == 1) {
-                        //addCard(deck.drawCard());
-                        displayHands();
-                        if (isBust) {
-                            System.out.println("Bust!");
-                            break;
-                        }
-                    } else if (answer == 2) {
+        Dealer dealer = Dealer.getInstance();
+        synchronized (lock) {
+           while(!isStand && !isBust) {
+                if (isHuman) {
+                    Frame.appendLog("Type 'hit' or 'stand':");
+                    String action = Frame.getUserInput();
+                    if(action.equals("h")) {
+                        dealer.dealCard(this);
+                    } else if (action.equals("s")) {
+                        isStand = true;
+                        Frame.appendLog("You stands!\n");
                         break;
+                    }
+                } else {
+                    if(cardScore < 17) {
+                        dealer.dealCard(this);
                     } else {
-                        System.out.println("Invalid input. Please enter 1 or 2.");
+                        isStand = true;
+                        Frame.appendLog("(AI) stands!\n");
+                        
                     }
                 }
-            }
-            
-    }
-}
 
+            }
+        }
+    }
 }

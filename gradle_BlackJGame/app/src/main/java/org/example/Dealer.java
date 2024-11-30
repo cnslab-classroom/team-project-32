@@ -1,11 +1,26 @@
 package org.example;
 
 public class Dealer {
-    
-    public void dealInitialCards(Player[] players, Deck deck) { //처음 카드 나눠주는 메서드
-        for (Player player : players) {
-            player.addCard(deck.drawCard());
-            player.addCard(deck.drawCard());
+    private final Deck deck;
+
+    // private 생성자: 외부에서 인스턴스화하지 못하도록 제한
+    private Dealer(int deckCount) {
+        deck = new Deck(deckCount);
+    }
+
+    // 싱글턴 패턴, Dealer를 1명으로
+    private static class SingletonHolder {
+        private static final Dealer INSTANCE = new Dealer(1); // 기본적으로 덱 수 1개
+    }
+
+    public static Dealer getInstance() {
+        return SingletonHolder.INSTANCE;
+    }
+
+    public synchronized void dealCard(Player player) {
+        if (player != null && !player.isBust() && !player.isStand()) {
+            Card card = deck.drawCard();
+            player.addCard(card);
         }
     }
 }

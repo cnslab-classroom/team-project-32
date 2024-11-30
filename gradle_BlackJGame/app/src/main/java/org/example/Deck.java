@@ -1,5 +1,4 @@
 package org.example;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Stack;
 
@@ -32,13 +31,6 @@ public final class Deck {
         suffleDeck();
     }
 
-    public void suffleDeck() { //덱 섞기
-        ArrayList<Card> temp = new ArrayList<>(cards);
-        Collections.shuffle(temp);
-        cards.clear();
-        cards.addAll(temp);
-    }
-
     public synchronized Card drawCard() { //카드 뽑기
         if (cards.isEmpty()) {
             //카드 없으면 다시 채우기
@@ -54,4 +46,9 @@ public final class Deck {
         return cards.pop();
         
     }
+
+    private void suffleDeck() { //덱 섞기
+        Collections.shuffle(cards);
+    }
+
 }
