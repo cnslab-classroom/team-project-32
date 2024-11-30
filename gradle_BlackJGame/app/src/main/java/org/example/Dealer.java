@@ -8,5 +8,4 @@ public class Dealer {
             player.addCard(deck.drawCard());
         }
     }
-
 }
