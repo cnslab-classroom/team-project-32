@@ -4,23 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Player implements Runnable {
-    private int score; //Player Á¡¼ö
+    private int score; //Player ì ìˆ˜
     private String name;
-    private int cardScore; //Player Ä«µå Á¡¼öÀÇ ÃÑ ÇÕ
-    private final List<Card> hands; //Player Ä«µå ¸®½ºÆ®
-    private final boolean isHuman; //»ç¶÷ÀÎÁö ÄÄÇ»ÅÍÀÎÁö check
-    private boolean isBlackJack; //BlackJackÀÎÁö È®ÀÎ
-    private boolean isBust; //BustÀÎÁö È®ÀÎ
-    private boolean isStand; //Ä«µå ±×¸¸ ¹ŞÀ»Áö È®ÀÎ
+    private int cardScore; //Player ì¹´ë“œ ì ìˆ˜ì˜ ì´ í•©
+    private final List<Card> hands; //Player ì¹´ë“œ ë¦¬ìŠ¤íŠ¸
+    private final boolean isHuman; //ì‚¬ëŒì¸ì§€ ì»´í“¨í„°ì¸ì§€ check
+    private boolean isBlackJack; //BlackJackì¸ì§€ í™•ì¸
+    private boolean isBust; //Bustì¸ì§€ í™•ì¸
+    private boolean isStand; //ì¹´ë“œ ê·¸ë§Œ ë°›ì„ì§€ í™•ì¸
     private Object lock = new Object();
-<<<<<<< HEAD
-    
-    public Player(String name, boolean isHuman) { //Player ìƒì„±ì
-      //  this.name = name;
-=======
 
-    public Player(String name, boolean isHuman) { //Player »ı¼ºÀÚ
->>>>>>> a56d42c9b0a9d74514de7209f201e47f26c64b6f
+    public Player(String name, boolean isHuman) { //Player ìƒì„±ì
         this.score = 0;
         this.cardScore = 0;
         this.hands = new ArrayList<>();
@@ -31,77 +25,73 @@ public class Player implements Runnable {
         this.isStand = false;
     }
 
-    public String getName() { //Player ÀÌ¸§ getter
+    public String getName() { //Player ì´ë¦„ getter
         return name;
     }
 
-    public int getScore() { //Player Á¡¼ö getter
+    public int getScore() { //Player ì ìˆ˜ getter
         return score;
     }
-    public void setScore(int score) { //Player Á¡¼ö setter
+    public void setScore(int score) { //Player ì ìˆ˜ setter
         this.score = score;
     }
 
-    public int getCardScore() { //Player Ä«µå Á¡¼ö getter
+    public int getCardScore() { //Player ì¹´ë“œ ì ìˆ˜ getter
         return cardScore;
     }
-    public void setCardScore(int cardScore) { //Player Ä«µå Á¡¼ö setter
+    public void setCardScore(int cardScore) { //Player ì¹´ë“œ ì ìˆ˜ setter
         this.cardScore = cardScore;
     }
 
-    public List<Card> getHands() { //Player Ä«µå ¸®½ºÆ® getter
+    public List<Card> getHands() { //Player ì¹´ë“œ ë¦¬ìŠ¤íŠ¸ getter
         return hands;
     }
 
-    public boolean isHuman() { //»ç¶÷ÀÎÁö comÀÎÁö È®ÀÎ , true¸é »ç¶÷
+    public boolean isHuman() { //ì‚¬ëŒì¸ì§€ comì¸ì§€ í™•ì¸ , trueë©´ ì‚¬ëŒ
         return isHuman;
     }
 
-    public boolean isBlackJack() { //BlackJack »óÅÂ getter
+    public boolean isBlackJack() { //BlackJack ìƒíƒœ getter
         return isBlackJack;
     }
-    public void setBlackJack(boolean blackJack) { //BlackJack »óÅÂ setter
+    public void setBlackJack(boolean blackJack) { //BlackJack ìƒíƒœ setter
         isBlackJack = blackJack;
     }
 
-    public boolean isBust() { //Bust »óÅÂ getter
+    public boolean isBust() { //Bust ìƒíƒœ getter
         return isBust;
     }
-    public void setBust(boolean bust) { //Bust »óÅÂ setter
+    public void setBust(boolean bust) { //Bust ìƒíƒœ setter
         isBust = bust;
     }
 
-    public boolean isStand() { //Stand »óÅÂ getter
+    public boolean isStand() { //Stand ìƒíƒœ getter
         return isStand;
     }
-    public void setStand(boolean stand) { //Stand »óÅÂ setter
+    public void setStand(boolean stand) { //Stand ìƒíƒœ setter
         isStand = stand;
     }
 
-<<<<<<< HEAD
     synchronized public void addCard(Card card) {//player handsì— ì¹´ë“œ ì¶”ê°€
-=======
-    synchronized public void addCard(Card card) {//player hands¿¡ Ä«µå Ãß°¡
->>>>>>> a56d42c9b0a9d74514de7209f201e47f26c64b6f
         int aceCount = 0;
         hands.add(card);
         
-        // A°¡ ÀÖÀ» ¶§ aceCount Áõ°¡
+        // Aê°€ ìˆì„ ë•Œ aceCount ì¦ê°€
         if (card.getRank().equals("A")) { aceCount++; }
         cardScore += card.getValue();
 
         if (cardScore > 21) {
             for (Card hand : hands) {
-                if (hand.getRank().equals("A") && aceCount > 0) { // ÃÑ Á¡¼ö°¡ 21À» ³Ñ°í, A°¡ ÀÖÀ» ¶§ A¸¦ 1·Î °è»ê
+                if (hand.getRank().equals("A") && aceCount > 0) { // ì´ ì ìˆ˜ê°€ 21ì„ ë„˜ê³ , Aê°€ ìˆì„ ë•Œ Aë¥¼ 1ë¡œ ê³„ì‚°
                     cardScore -= 10;
                     aceCount--;
                 }
             }
-            if (cardScore > 21) { // A¸¦ 1·Î °è»êÇßÀ» ¶§¿¡µµ 21À» ³ÑÀ¸¸é Bust
+            if (cardScore > 21) { // Aë¥¼ 1ë¡œ ê³„ì‚°í–ˆì„ ë•Œì—ë„ 21ì„ ë„˜ìœ¼ë©´ Bust
                 setBust(true);
             }
         }
-        if (hands.size() == 2 && cardScore == 21) // Ä«µå°¡ 2ÀåÀÌ°í 21ÀÏ ¶§ BlackJack
+        if (hands.size() == 2 && cardScore == 21) // ì¹´ë“œê°€ 2ì¥ì´ê³  21ì¼ ë•Œ BlackJack
             setBlackJack(true);
         
         if (isHuman)
@@ -139,7 +129,7 @@ public class Player implements Runnable {
         }
     }
 
-    // °ÔÀÓ Àç½ÃÀÛ ½Ã ÇÃ·¹ÀÌ¾î »óÅÂ ÃÊ±âÈ­ ¸Ş¼Òµå
+    // ê²Œì„ ì¬ì‹œì‘ ì‹œ í”Œë ˆì´ì–´ ìƒíƒœ ì´ˆê¸°í™” ë©”ì†Œë“œ
     public void reset() {
         this.score = 0;
         this.cardScore = 0;

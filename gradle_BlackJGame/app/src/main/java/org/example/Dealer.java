@@ -1,23 +1,23 @@
 package org.example;
 
-//Dealer class ¼öÁ¤µÊ, µ¿ÀûÀ¸·Î deck ÀÔ·Â¹Ş±â À§ÇØ
+//Dealer class ìˆ˜ì •ë¨, ë™ì ìœ¼ë¡œ deck ì…ë ¥ë°›ê¸° ìœ„í•´
 public class Dealer {
     private Deck deck;
     private static Dealer instance;
     private int deckCount;
 
-    // private »ı¼ºÀÚ: ¿ÜºÎ¿¡¼­ ÀÎ½ºÅÏ½ºÈ­ÇÏÁö ¸øÇÏµµ·Ï Á¦ÇÑ
+    // private ìƒì„±ì: ì™¸ë¶€ì—ì„œ ì¸ìŠ¤í„´ìŠ¤í™”í•˜ì§€ ëª»í•˜ë„ë¡ ì œí•œ
     private Dealer(int deckCount) {
         this.deckCount = deckCount;
         deck = new Deck(deckCount);
     }
 
-    // ½Ì±ÛÅÏ ÆĞÅÏ, Dealer¸¦ 1¸íÀ¸·Î
+    // ì‹±ê¸€í„´ íŒ¨í„´, Dealerë¥¼ 1ëª…ìœ¼ë¡œ
     public static synchronized Dealer getInstance(int deckCount) {
         if (instance == null) {
             instance = new Dealer(deckCount);
         } else {
-            // µ¦ °³¼ö°¡ º¯°æµÇ¸é µ¦À» Àç¼³Á¤
+            // ë± ê°œìˆ˜ê°€ ë³€ê²½ë˜ë©´ ë±ì„ ì¬ì„¤ì •
             if (instance.deckCount != deckCount) {
                 instance.deckCount = deckCount;
                 instance.deck = new Deck(deckCount);
@@ -33,7 +33,7 @@ public class Dealer {
         }
     }
 
-    // °ÔÀÓ Àç½ÃÀÛ ½Ã µ¦À» Àç¼³Á¤ÇÏ´Â ¸Ş¼Òµå
+    // ê²Œì„ ì¬ì‹œì‘ ì‹œ ë±ì„ ì¬ì„¤ì •í•˜ëŠ” ë©”ì†Œë“œ
     public synchronized void resetDeck(int deckCount) {
         this.deckCount = deckCount;
         deck = new Deck(deckCount);

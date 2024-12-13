@@ -1,42 +1,42 @@
 package org.example;
 
 public class Card {
-    private final String suit; //Ä«µåÀÇ ¸ğ¾ç(ÇÏÆ®, ´ÙÀÌ¾Æ¸óµå, Å¬·´, ½ºÆäÀÌµå)
-    private final String rank; //Ä«µåÀÇ ¼ıÀÚ(2~10, J, Q, K, A)
-    private final int value; //Ä«µåÀÇ Á¡¼ö(1~11)
+    private final String suit; //ì¹´ë“œì˜ ëª¨ì–‘(í•˜íŠ¸, ë‹¤ì´ì•„ëª¬ë“œ, í´ëŸ½, ìŠ¤í˜ì´ë“œ)
+    private final String rank; //ì¹´ë“œì˜ ìˆ«ì(2~10, J, Q, K, A)
+    private final int value; //ì¹´ë“œì˜ ì ìˆ˜(1~11)
     
-    public Card(String suit, String rank) { //Ä«µå »ı¼ºÀÚ
+    public Card(String suit, String rank) { //ì¹´ë“œ ìƒì„±ì
         this.suit = suit;
         this.rank = rank;
         
-        switch (rank) { //Ä«µå ¼ıÀÚ¿¡ µû¸¥ Á¡¼ö ºÎ¿©
-            case "A": //A´Â 11·Î °è»ê
+        switch (rank) { //ì¹´ë“œ ìˆ«ìì— ë”°ë¥¸ ì ìˆ˜ ë¶€ì—¬
+            case "A": //AëŠ” 11ë¡œ ê³„ì‚°
                 this.value = 11;
                 break;
             case "J":
             case "Q":
             case "K":
-                this.value = 10; //J, Q, K´Â 10À¸·Î °è»ê
+                this.value = 10; //J, Q, KëŠ” 10ìœ¼ë¡œ ê³„ì‚°
                 break;
             default:
-                this.value = Integer.parseInt(rank); //³ª¸ÓÁö ¼ıÀÚ´Â ¼ıÀÚ ±×´ë·Î °è»ê
+                this.value = Integer.parseInt(rank); //ë‚˜ë¨¸ì§€ ìˆ«ìëŠ” ìˆ«ì ê·¸ëŒ€ë¡œ ê³„ì‚°
                 break;
         }
     }
 
-    public String getSuit() { //Ä«µå¸ğ¾ç getter
+    public String getSuit() { //ì¹´ë“œëª¨ì–‘ getter
         return suit;
     }
 
-    public String getRank() { //Ä«µå¼ıÀÚ getter
+    public String getRank() { //ì¹´ë“œìˆ«ì getter
         return rank;
     }
 
-    public int getValue() { //Ä«µåÁ¡¼ö getter
+    public int getValue() { //ì¹´ë“œì ìˆ˜ getter
         return value;
     }
 
-    public String printCard() { //Ä«µå Á¤º¸ Ãâ·Â
+    public String printCard() { //ì¹´ë“œ ì •ë³´ ì¶œë ¥
         return suit + " / " + rank;
     }
 }

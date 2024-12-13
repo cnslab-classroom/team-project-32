@@ -4,22 +4,22 @@ import java.util.Stack;
 
 public final class Deck {
     private final Stack<Card> cards;
-    private int stacks; //µ¦ÀÇ Ä«µå ¼ö
-    private final int sets; //µ¦ÀÇ ¼¼Æ® ¼ö
-    boolean flag = true; //ÇÃ·¡±× º¯¼ö
+    private int stacks; //ë±ì˜ ì¹´ë“œ ìˆ˜
+    private final int sets; //ë±ì˜ ì„¸íŠ¸ ìˆ˜
+    boolean flag = true; //í”Œë˜ê·¸ ë³€ìˆ˜
 
-    public Deck(int sets) { //µ¦ »ı¼ºÀÚ
-        if (sets >= 1 && sets <= 4) { //ÀÔ·ÂÇÑ ¼¼Æ® ¼ö°¡ 1~4 »çÀÌÀÏ ¶§
+    public Deck(int sets) { //ë± ìƒì„±ì
+        if (sets >= 1 && sets <= 4) { //ì…ë ¥í•œ ì„¸íŠ¸ ìˆ˜ê°€ 1~4 ì‚¬ì´ì¼ ë•Œ
             this.stacks = 52 * sets;
             this.sets = sets; 
         } else {
-            this.sets = 2; //µ¦ÀÇ ¼¼Æ® ¼ö default°ª ¼³Á¤
+            this.sets = 2; //ë±ì˜ ì„¸íŠ¸ ìˆ˜ defaultê°’ ì„¤ì •
             this.stacks = 52 * this.sets;
         }
         this.cards = new Stack<>();
 
         String[] suits = {"Spades", "Clubs", "Hearts", "Diamonds"};
-        String[] ranks = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"}; //Ä«µå ¼ıÀÚ ¹è¿­
+        String[] ranks = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"}; //ì¹´ë“œ ìˆ«ì ë°°ì—´
 
         for (int i = 0; i < sets; i++) { 
             for (String suit : suits) { 
@@ -31,9 +31,9 @@ public final class Deck {
         shuffleDeck();
     }
 
-    public synchronized Card drawCard() { //Ä«µå »Ì±â
+    public synchronized Card drawCard() { //ì¹´ë“œ ë½‘ê¸°
         if (cards.isEmpty()) {
-            //Ä«µå ¾øÀ¸¸é ´Ù½Ã Ã¤¿ì±â
+            //ì¹´ë“œ ì—†ìœ¼ë©´ ë‹¤ì‹œ ì±„ìš°ê¸°
             for (int i = 0; i < sets; i++) {
                 for (Card card : cards) {
                     cards.push(card);
@@ -47,7 +47,7 @@ public final class Deck {
         
     }
 
-    private void shuffleDeck() { //µ¦ ¼¯±â
+    private void shuffleDeck() { //ë± ì„ê¸°
         Collections.shuffle(cards);
     }
 

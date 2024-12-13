@@ -10,7 +10,7 @@ public class GameManager {
     private int deckCount;
 
     private GameManager() {
-        //�̱��� ����
+        //싱글턴 패턴
     }
 
     public static synchronized GameManager getInstance() {
@@ -41,10 +41,10 @@ public class GameManager {
     public void startGame() {
         Frame.appendUserLog("Starting game...");
 
-        // ���� �ʱ�ȭ �α� ���
+        // 게임 초기화 로그 출력
         Frame.appendUserLog("Dealing Cards....");
         
-        // �������� �� ���� ī�� ���
+        // 딜러에게 두 장의 카드 배분
         for(int i = 0; i < 2; i++) {
             dealer.dealCard(Ai);
         }
@@ -75,7 +75,7 @@ public class GameManager {
         }
         userThread.start();
 
-        // �� �÷��̾ ��� ���� ������ join..
+        // 두 플레이어가 모두 끝날 때까지 join..
         try {
             userThread.join();
             aiThread.join();
@@ -83,14 +83,14 @@ public class GameManager {
             e.printStackTrace();
         }
 
-        // �÷��̾� �ൿ ���� �� ���� ����
+        // 플레이어 행동 끝난 후 승패 결정
         determineWinner();
 
-        // ���� ���� �� ����� ���� Ȯ��
+        // 게임 종료 후 재시작 여부 확인
         restart();
     }
 
-    // ���� �� ������ ����
+    // 시작 후 블랙잭 판정
     private boolean checkInitialState() {
         boolean isEnded = false;
 
