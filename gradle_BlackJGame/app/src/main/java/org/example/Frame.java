@@ -2,37 +2,195 @@ package org.example;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.net.URL;
 
 public class Frame extends JFrame {
-    private static JTextArea logArea;
+    private static JTextArea userLogArea;
+    private static JTextArea aiLogArea;
     private static JTextField inputField;
+    private static int logIdx = 1; // ·Î±× ÀÎµ¦½º ÃÊ±âÈ­
+    private static String userInput = null; // »ç¿ëÀÚ ÀÔ·ÂÀ» ÀúÀåÇÒ º¯¼ö
+
+    private CardLayout cardLayout;
+    private JPanel mainPanel;
+    private JPanel gamePanel;
+    private JPanel setupPanel;
+    private JComboBox<Integer> deckCountComboBox; // JComboBox·Î º¯°æ
+    private JButton startButton;
 
     private Frame() {
-        //ê¸°ë³¸ ì„¤ì •
+        // ±âº» ¼³Á¤
         setTitle("BlackJack Game");
-        setSize(500, 400);
+        setSize(800, 600); // Ã¢ Å©±â Á¶Á¤
+        setResizable(false);  // Ã¢ Å©±â °íÁ¤
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // ë¡œê·¸ ì¶œë ¥ ì˜ì—­
-        logArea = new JTextArea();
-        logArea.setEditable(false);
-        add(new JScrollPane(logArea), BorderLayout.CENTER);
+        // CardLayout ¼³Á¤
+        cardLayout = new CardLayout();
+        mainPanel = new JPanel(cardLayout);
+
+        // ¼³Á¤ ÆĞ³Î (µ¦ °³¼ö ¼±ÅÃ)
+        setupPanel = new JPanel();
+        setupPanel.setLayout(new GridBagLayout());
+
+        //gridLayOut ÄÄÆ÷³ÍÆ® À§Ä¡ Á¦¾î °´Ã¼
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10,10,10,10);
+
+        //deck °³¼ö °í¸£´Â ÄŞº¸ ¹Ú½º Ãß°¡
+        JLabel deckLabel = new JLabel("Select number of decks (1-4): ");
+        Integer[] deckOptions = {1, 2, 3, 4};
+        deckCountComboBox = new JComboBox<>(deckOptions); // JComboBox »ç¿ë
+        deckCountComboBox.setSelectedIndex(0); // ±âº»°ª 1
+
+        startButton = new JButton("Start Game");
+
+        //µ¦ °³¼ö label
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        setupPanel.add(deckLabel, gbc);
+
+        //µ¦ °³¼ö combobox
+        gbc.gridx = 1;
+        setupPanel.add(deckCountComboBox, gbc);
+
+        //gmaestart button
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 2;
+        setupPanel.add(startButton, gbc);
+
+        // º» °ÔÀÓ ÆĞ³Î
+        gamePanel = new JPanel(new BorderLayout());
+
+        // ÇØ´ç ºÎºĞÀÌ Àß ¾ÈµÊ..
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new BorderLayout());
+        try {
+            URL imageUrl = getClass().getResource("/dealer.png");
+            if (imageUrl != null) {
+                ImageIcon dealerIcon = new ImageIcon(imageUrl);
+
+                // ÀÌ¹ÌÁö¸¦ Å©±â¿¡ ¸Â°Ô Á¶Á¤
+                Image scaledImage = dealerIcon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+                ImageIcon scaledIcon = new ImageIcon(scaledImage);
+
+                // ¶óº§¿¡ Á¶Á¤µÈ ÀÌ¹ÌÁö Ãß°¡
+                JLabel dealerLabel = new JLabel(scaledIcon);
+                topPanel.add(dealerLabel);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            topPanel.add(new JLabel("Error loading dealer image"));
+        }
+        gamePanel.add(topPanel, BorderLayout.NORTH);
 
 
-        // ì…ë ¥ ì˜ì—­
+        // borderLayOut ÁÂ¿¡ playerLog, ¿ì¿¡ AiLog
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new GridLayout(1, 2, 10, 10));
+        
+
+        // User ·Î±× ÆĞ³Î
+        JPanel userPanel = new JPanel();
+        userPanel.setLayout(new BorderLayout());
+        userPanel.setBorder(BorderFactory.createTitledBorder("User Log"));
+        userLogArea = new JTextArea();
+        userLogArea.setEditable(false);
+        userLogArea.setLineWrap(true);  // ÅØ½ºÆ® ±æÀÌ ³Ñ¾î°¡¸é ÁÙ¹Ù²Ş
+        userLogArea.setWrapStyleWord(true); // ´Ü¾î ´ÜÀ§·Î ÁÙ¹Ù²Ş
+        JScrollPane userScrollPane = new JScrollPane(userLogArea);
+        userPanel.add(userScrollPane, BorderLayout.CENTER);
+        centerPanel.add(userPanel);
+
+        // AI ·Î±× ÆĞ³Î
+        JPanel aiPanel = new JPanel();
+        aiPanel.setLayout(new BorderLayout());
+        aiPanel.setBorder(BorderFactory.createTitledBorder("AI Log"));
+        aiLogArea = new JTextArea();
+        aiLogArea.setEditable(false);
+        aiLogArea.setLineWrap(true);
+        aiLogArea.setWrapStyleWord(true);
+        JScrollPane aiScrollPane = new JScrollPane(aiLogArea);
+        aiPanel.add(aiScrollPane, BorderLayout.CENTER);
+        centerPanel.add(aiPanel);
+
+        gamePanel.add(centerPanel, BorderLayout.CENTER);
+
+        // ÇÏ´Ü ÀÔ·Â ÆĞ³Î
         JPanel inputPanel = new JPanel();
         inputPanel.setLayout(new FlowLayout());
 
-        inputField = new JTextField(20);
-        inputField.setEnabled(true); // ì…ë ¥ í•„ë“œ ê¸°ë³¸ í™œì„±í™”
+        inputField = new JTextField(30);
+        JButton sendButton = new JButton("Enter");
         inputPanel.add(inputField);
+        inputPanel.add(sendButton);
 
-        add(inputPanel, BorderLayout.SOUTH);
+        gamePanel.add(inputPanel, BorderLayout.SOUTH);
+
+        // °ÔÀÓ ÆĞ³ÎÀ» mainPanel¿¡ Ãß°¡
+        mainPanel.add(setupPanel, "SETUP");
+        mainPanel.add(gamePanel, "GAME");
+
+        add(mainPanel, BorderLayout.CENTER);
+
+        // µ¦ °³¼ö ¼±ÅÃ ÈÄ ½ÃÀÛ ¹öÆ° ¾×¼Ç ¸®½º³Ê Ãß°¡
+        startButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int deckCount = (Integer) deckCountComboBox.getSelectedItem();
+                
+                // Ä«µå ·¹ÀÌ¾Æ¿ôÀ» ÅëÇØ °ÔÀÓ ÆĞ³Î·Î ÀüÈ¯
+                cardLayout.show(mainPanel, "GAME");
+                mainPanel.revalidate(); // º¯°æ»çÇ× Àû¿ë
+                mainPanel.repaint(); // º¯°æµÈ ³»¿ë ÆĞ³Î¿¡ Àû¿ë
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        // ÇØ´ç ÀÛ¾÷ ÇØÁÖÁö ¾ÊÀ¸¸é
+                        // combobox ¼±ÅÃ½Ã player thread¸¸ µ¹¾Æ°¡¼­ ´ÙÀ½ ÆĞ³Î·Î ³Ñ¾î°¡Áö ¾ÊÀ½
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                GameManager.getInstance().initializeGame(deckCount);
+                            }
+                        }).start();
+                    }
+                });
+            }
+        });
+
+        // ÀÔ·Â ÇÊµå ¾×¼Ç ¸®½º³Ê Ãß°¡
+        sendButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                synchronized (Frame.class) {
+                    String input = inputField.getText().trim();
+                    if (!input.isEmpty()) {
+                        userInput = input;
+                        Frame.appendUserLog("Player input: " + input);
+                        Frame.class.notifyAll(); // ´ë±â ÁßÀÎ ½º·¹µå ±ú¿ì±â
+                        inputField.setText("");
+                    }
+                }
+            }
+        });
+
+        // ¿£ÅÍÅ°·Îµµ ÀÔ·Â °¡´ÉÇÏ°Ô ¼³Á¤
+        inputField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                sendButton.doClick();
+            }
+        });
+
         setVisible(true);
     }
 
-    // ë”œëŸ¬ì™€ ë§ˆì°¬ê°€ì§€ë¡œ ì‹±ê¸€í„´, ê°ì²´ê°€ 1ê°œë§Œ ì¡´ì¬í•˜ê³  ì™¸ë¶€ì—ì„œ ì ‘ê·¼í•˜ê²Œ
+    // ½Ì±ÛÅÏ ÆĞÅÏ
     private static class SingletonHolder {
         private static final Frame INSTANCE = new Frame();
     }
@@ -41,23 +199,36 @@ public class Frame extends JFrame {
         return SingletonHolder.INSTANCE;
     }
 
-    //ë¡œê·¸ ì¶œë ¥
-    public static void appendLog(String message) {
-        SwingUtilities.invokeLater(() -> logArea.append(message + "\n"));
+    // »ç¿ëÀÚ ·Î±×¿¡ ¸Ş½ÃÁö Ãß°¡ (ÀÎµ¦½º Æ÷ÇÔ)
+    public static synchronized void appendUserLog(String message) {
+        userLogArea.append("[" + logIdx + "] " + message + "\n\n");
+        logIdx++;
     }
 
-    public static String getUserInput() {
-        while (true) {
-            if (!inputField.getText().isEmpty()) {
-                String input = inputField.getText().trim();
-                inputField.setText(""); // ì…ë ¥ í•„ë“œ ì´ˆê¸°í™”
-                return input;
-            }
+    // AI ·Î±×¿¡ ¸Ş½ÃÁö Ãß°¡ (ÀÎµ¦½º Æ÷ÇÔ)
+    public static synchronized void appendAiLog(String message) {
+        aiLogArea.append("[" + logIdx + "] " + message + "\n\n");
+        logIdx++;
+    }
+
+    // »ç¿ëÀÚ ÀÔ·ÂÀ» °¡Á®¿À´Â ¸Ş¼Òµå
+    public static synchronized String getUserInput() {
+        while (userInput == null) {
             try {
-                Thread.sleep(100); // ì…ë ¥ ëŒ€ê¸°
+                Frame.class.wait(); // ÀÔ·ÂÀÌ ¿Ã ¶§±îÁö ´ë±â
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
+        String input = userInput;
+        userInput = null; // ÀÔ·Â Ã³¸® ÈÄ ÃÊ±âÈ­
+        return input;
+    }
+
+    // ·Î±× ÃÊ±âÈ­ ¸Ş¼Òµå
+    public static synchronized void clearLogs() {
+        userLogArea.setText("");
+        aiLogArea.setText("");
+        logIdx = 1;
     }
 }

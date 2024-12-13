@@ -3,23 +3,51 @@ package org.example;
 import java.util.concurrent.TimeUnit;
 
 public class GameManager {
-    private final Player user;
-    private final Player Ai;
-    public GameManager() {
-        Frame.getInstance(); // Frame ì´ˆê¸°í™”
-        this.user = new Player("Human", true);
-        this.Ai = new Player("AI", false);
+    private static GameManager instance;
+    private Player user;
+    private Player Ai;
+    private Dealer dealer;
+    private int deckCount;
+
+    private GameManager() {
+        //½Ì±ÛÅÏ ÆÐÅÏ
+    }
+
+    public static synchronized GameManager getInstance() {
+        if (instance == null) {
+            instance = new GameManager();
+        }
+        return instance;
+    }
+
+    public void initializeGame(int deckCount) {
+        this.deckCount = deckCount;
+        dealer = Dealer.getInstance(deckCount);
+        if (user == null && Ai == null) {
+            this.user = new Player("Human", true);
+            this.Ai = new Player("AI", false);
+        }
+        else 
+            resetGame();
+        startGame();
+}
+
+    public void resetGame() {
+        user.reset();
+        Ai.reset();
+        dealer.resetDeck(deckCount);
     }
 
     public void startGame() {
-        Frame.appendLog("Starting game...");
+        Frame.appendUserLog("Starting game...");
 
-        // ê²Œìž„ ì´ˆê¸°í™” ë¡œê·¸ ì¶œë ¥
-        Frame.appendLog("Dealing Cards....");
-        Dealer dealer = Dealer.getInstance();
-        // Ai ì‹¤í–‰ í›„ User ì‹¤í–‰
-        for(int i = 0; i < 2; i++)
+        // °ÔÀÓ ÃÊ±âÈ­ ·Î±× Ãâ·Â
+        Frame.appendUserLog("Dealing Cards....");
+        
+        // µô·¯¿¡°Ô µÎ ÀåÀÇ Ä«µå ¹èºÐ
+        for(int i = 0; i < 2; i++) {
             dealer.dealCard(Ai);
+        }
 
         try {
             TimeUnit.SECONDS.sleep(1);
@@ -27,14 +55,15 @@ public class GameManager {
             e.printStackTrace();
         }
 
-        for(int i = 0; i < 2; i++)
+        for(int i = 0; i < 2; i++) {
             dealer.dealCard(user);
+        }
 
         if(checkInitialState()) {
             return;
         }
 
-        Frame.appendLog("Game initialized. Ready to play.");
+        Frame.appendUserLog("Game initialized. Ready to play.");
         Thread userThread = new Thread(user);
         Thread aiThread = new Thread(Ai);
 
@@ -46,7 +75,7 @@ public class GameManager {
         }
         userThread.start();
 
-        //ë‘ í”Œë ˆì´ì–´ê°€ ëª¨ë‘ ëë‚  ë•Œê¹Œì§€ join..
+        // µÎ ÇÃ·¹ÀÌ¾î°¡ ¸ðµÎ ³¡³¯ ¶§±îÁö join..
         try {
             userThread.join();
             aiThread.join();
@@ -54,22 +83,25 @@ public class GameManager {
             e.printStackTrace();
         }
 
-        //í”Œë ˆì´ì–´ í–‰ë™ ëë‚œ í›„ ìŠ¹íŒ¨ ê²°ì •
+        // ÇÃ·¹ÀÌ¾î Çàµ¿ ³¡³­ ÈÄ ½ÂÆÐ °áÁ¤
         determineWinner();
+
+        // °ÔÀÓ Á¾·á ÈÄ Àç½ÃÀÛ ¿©ºÎ È®ÀÎ
+        restart();
     }
 
-    // ì‹œìž‘ í›„ ë¸”ëž™ìž­ íŒì •
+    // ½ÃÀÛ ÈÄ ºí·¢Àè ÆÇÁ¤
     private boolean checkInitialState() {
         boolean isEnded = false;
 
         if (user.isBlackJack() && Ai.isBlackJack()) {
-            Frame.appendLog("Both players made BlackJack! It's a draw!");
+            Frame.appendUserLog("Both players made BlackJack! It's a draw!");
             isEnded = true;
         } else if (user.isBlackJack()) {
-            Frame.appendLog("You made BlackJack! You Win!");
+            Frame.appendUserLog("You made BlackJack! You Win!");
             isEnded = true;
         } else if (Ai.isBlackJack()) {
-            Frame.appendLog("AI made BlackJack! You Lose!");
+            Frame.appendAiLog("AI made BlackJack! You Lose!");
             isEnded = true;
         }
 
@@ -78,15 +110,32 @@ public class GameManager {
 
     private void determineWinner() {
         if (user.isBust()) {
-            Frame.appendLog("You are bust! You Lose.");
+            Frame.appendUserLog("You are bust! You Lose.");
         } else if (Ai.isBust()) {
-            Frame.appendLog("AI is bust! You Win!");
+            Frame.appendUserLog("AI is bust! You Win!");
         } else if (user.getCardScore() > Ai.getCardScore()) {
-            Frame.appendLog("You Win!");
+            Frame.appendUserLog("You Win!");
         } else if (user.getCardScore() < Ai.getCardScore()) {
-            Frame.appendLog("You Lose!");
+            Frame.appendUserLog("You Lose!");
         } else {
-            Frame.appendLog("It's a draw!");
+            Frame.appendUserLog("It's a draw!");
         }
+    }
+
+    private void restart() {
+        Frame.appendUserLog("Press 'r' to restart the game.");
+        Frame.appendAiLog("Press 'r' to restart the game.");
+
+        String input = Frame.getUserInput();
+        if (input.equalsIgnoreCase("r")) {
+            Frame.clearLogs();
+            initializeGame(deckCount);
+        } else {
+            Frame.appendUserLog("Exiting game.");
+            System.exit(0);
+        }
+    }
+        public int getDeckCount() {
+        return this.deckCount;
     }
 }
