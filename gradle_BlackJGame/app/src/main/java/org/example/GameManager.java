@@ -60,6 +60,7 @@ public class GameManager {
         }
 
         if(checkInitialState()) {
+            restart();
             return;
         }
 
