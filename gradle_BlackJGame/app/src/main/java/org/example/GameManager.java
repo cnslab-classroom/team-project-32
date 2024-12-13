@@ -10,7 +10,7 @@ public class GameManager {
     private int deckCount;
 
     private GameManager() {
-        //½Ì±ÛÅÏ ÆĞÅÏ
+        //ì‹±ê¸€í„´ íŒ¨í„´
     }
 
     public static synchronized GameManager getInstance() {
@@ -41,10 +41,10 @@ public class GameManager {
     public void startGame() {
         Frame.appendUserLog("Starting game...");
 
-        // °ÔÀÓ ÃÊ±âÈ­ ·Î±× Ãâ·Â
+        // ê²Œì„ ì´ˆê¸°í™” ë¡œê·¸ ì¶œë ¥
         Frame.appendUserLog("Dealing Cards....");
         
-        // µô·¯¿¡°Ô µÎ ÀåÀÇ Ä«µå ¹èºĞ
+        // ë”œëŸ¬ì—ê²Œ ë‘ ì¥ì˜ ì¹´ë“œ ë°°ë¶„
         for(int i = 0; i < 2; i++) {
             dealer.dealCard(Ai);
         }
@@ -75,7 +75,7 @@ public class GameManager {
         }
         userThread.start();
 
-        // µÎ ÇÃ·¹ÀÌ¾î°¡ ¸ğµÎ ³¡³¯ ¶§±îÁö join..
+        // ë‘ í”Œë ˆì´ì–´ê°€ ëª¨ë‘ ëë‚  ë•Œê¹Œì§€ join..
         try {
             userThread.join();
             aiThread.join();
@@ -83,14 +83,14 @@ public class GameManager {
             e.printStackTrace();
         }
 
-        // ÇÃ·¹ÀÌ¾î Çàµ¿ ³¡³­ ÈÄ ½ÂÆĞ °áÁ¤
+        // í”Œë ˆì´ì–´ í–‰ë™ ëë‚œ í›„ ìŠ¹íŒ¨ ê²°ì •
         determineWinner();
 
-        // °ÔÀÓ Á¾·á ÈÄ Àç½ÃÀÛ ¿©ºÎ È®ÀÎ
+        // ê²Œì„ ì¢…ë£Œ í›„ ì¬ì‹œì‘ ì—¬ë¶€ í™•ì¸
         restart();
     }
 
-    // ½ÃÀÛ ÈÄ ºí·¢Àè ÆÇÁ¤
+    // ì‹œì‘ í›„ ë¸”ë™ì­ íŒì •
     private boolean checkInitialState() {
         boolean isEnded = false;
 
