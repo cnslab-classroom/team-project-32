@@ -39,3 +39,15 @@ application {
     // Define the main class for the application.
     mainClass = "org.example.App"
 }
+
+sourceSets {
+    main {
+        resources {
+            // 명시적으로 리소스 디렉토리를 추가
+            srcDirs("src/main/resources")
+        }
+    }
+}
+tasks.named<Copy>("processResources") {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

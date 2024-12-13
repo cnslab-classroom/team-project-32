@@ -1,20 +1,29 @@
 package org.example;
 
+//Dealer class ¼öÁ¤µÊ, µ¿ÀûÀ¸·Î deck ÀÔ·Â¹Ş±â À§ÇØ
 public class Dealer {
-    private final Deck deck;
+    private Deck deck;
+    private static Dealer instance;
+    private int deckCount;
 
-    // private ìƒì„±ì: ì™¸ë¶€ì—ì„œ ì¸ìŠ¤í„´ìŠ¤í™”í•˜ì§€ ëª»í•˜ë„ë¡ ì œí•œ
+    // private »ı¼ºÀÚ: ¿ÜºÎ¿¡¼­ ÀÎ½ºÅÏ½ºÈ­ÇÏÁö ¸øÇÏµµ·Ï Á¦ÇÑ
     private Dealer(int deckCount) {
+        this.deckCount = deckCount;
         deck = new Deck(deckCount);
     }
 
-    // ì‹±ê¸€í„´ íŒ¨í„´, Dealerë¥¼ 1ëª…ìœ¼ë¡œ
-    private static class SingletonHolder {
-        private static final Dealer INSTANCE = new Dealer(1); // ê¸°ë³¸ì ìœ¼ë¡œ ë± ìˆ˜ 1ê°œ
-    }
-
-    public static Dealer getInstance() {
-        return SingletonHolder.INSTANCE;
+    // ½Ì±ÛÅÏ ÆĞÅÏ, Dealer¸¦ 1¸íÀ¸·Î
+    public static synchronized Dealer getInstance(int deckCount) {
+        if (instance == null) {
+            instance = new Dealer(deckCount);
+        } else {
+            // µ¦ °³¼ö°¡ º¯°æµÇ¸é µ¦À» Àç¼³Á¤
+            if (instance.deckCount != deckCount) {
+                instance.deckCount = deckCount;
+                instance.deck = new Deck(deckCount);
+            }
+        }
+        return instance;
     }
 
     public synchronized void dealCard(Player player) {
@@ -22,5 +31,15 @@ public class Dealer {
             Card card = deck.drawCard();
             player.addCard(card);
         }
+    }
+
+    // °ÔÀÓ Àç½ÃÀÛ ½Ã µ¦À» Àç¼³Á¤ÇÏ´Â ¸Ş¼Òµå
+    public synchronized void resetDeck(int deckCount) {
+        this.deckCount = deckCount;
+        deck = new Deck(deckCount);
+    }
+
+    public int getDeckCount() {
+        return deckCount;
     }
 }
