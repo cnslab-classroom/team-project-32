@@ -121,9 +121,6 @@ public class GameManager {
             Frame.appendUserLog("It's a draw!");
         }
     }
-<<<<<<< HEAD
-}
-=======
 
     private void restart() {
         Frame.appendUserLog("Press 'r' to restart the game.");
@@ -142,4 +139,3 @@ public class GameManager {
         return this.deckCount;
     }
 }
->>>>>>> a56d42c9b0a9d74514de7209f201e47f26c64b6f
