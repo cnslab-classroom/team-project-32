@@ -12,7 +12,7 @@ public class Player implements Runnable {
     private boolean isBlackJack; //BlackJack인지 확인
     private boolean isBust; //Bust인지 확인
     private boolean isStand; //카드 그만 받을지 확인
-    private Object lock = new Object();
+    private static Object lock = new Object();
 
     public Player(String name, boolean isHuman) { //Player 생성자
         this.score = 0;

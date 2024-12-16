@@ -11,6 +11,7 @@ public class GameManager {
 
     private GameManager() {
         //싱글턴 패턴
+        Frame frame = Frame.getInstance();
     }
 
     public static synchronized GameManager getInstance() {
